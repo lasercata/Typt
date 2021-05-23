@@ -14,6 +14,7 @@ Else you should be able to run the software by downloading the build version for
 
 ## Installing
 
+### Source code
 Download or clone the repository :
 
 ```bash
@@ -27,14 +28,20 @@ cd Typt
 chmod +x *.py
 ```
 
+### Release
+Go to [releases](https://github.com/lasercata/Typt/releases), and download the zip file for your OS. Then unzip it.
+
 
 ## Running
 In the main directory, run `./Typt_gui.py` to run the python script. Else you can run `./Typt_gui` for Linux build, or `Typt_gui.exe` for Windows build.
+
+To open file, run `./Typt_gui.py [files...]`. For command line help, type `./Typt_gui.py -h`. Show version : `./Typt_gui.py -v`.
 
 
 ## Authors
 
 * **Lasercata** - [Lasercata](https://github.com/lasercata)
+* **Elerias** - [Elerias](https://github.com/EleriasQueflunn) for the implementation of AES
 
 
 ## License

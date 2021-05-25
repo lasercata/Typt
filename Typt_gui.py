@@ -4,8 +4,8 @@
 '''Launch Typt with PyQt5 graphical interface.'''
 
 Typt_gui__auth = 'Lasercata'
-Typt_gui__last_update = '23.05.2021'
-Typt_gui__version = '1.0'
+Typt_gui__last_update = '25.05.2021'
+Typt_gui__version = '1.1'
 
 
 ##-import
@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QComboBox, QStyleFactory
 
 #------other
 from os import chdir, getcwd
-from os.path import isfile
+from os.path import isfile, expanduser
 from shutil import copy
 import sys
 
@@ -117,6 +117,9 @@ class TyptGui(QMainWindow):
         self.setCentralWidget(self.main_wid)
 
         #Todo: movable tabs ? it changes the index => all lists are wrong.
+
+        self.save_path = expanduser('~')
+        self.open_path = expanduser('~')
 
 
         #---font
@@ -252,7 +255,14 @@ class TyptGui(QMainWindow):
         #---Encryption
         self.encryption_m = menu_bar.addMenu(tr('E&ncryption'))
 
-        #-Undo
+        #-Change password
+        self.set_pwd_ac = QAction(tr('&Set Password'), self)
+        self.set_pwd_ac.setEnabled(True)
+        #self.set_pwd_ac.setShortcut('Ctrl+Z')
+        self.set_pwd_ac.triggered.connect(self.set_pwd)
+        self.encryption_m.addAction(self.set_pwd_ac)
+
+        #-Change password
         self.ch_pwd_ac = QAction(tr('&Change Password'), self)
         self.ch_pwd_ac.setEnabled(False)
         #self.ch_pwd_ac.setShortcut('Ctrl+Z')
@@ -312,6 +322,12 @@ class TyptGui(QMainWindow):
 
         self.statusbar.addPermanentWidget(QLabel('  ')) #Spacing
 
+        #---Password
+        self.pwd_set_lb = QLabel()
+        self.statusbar.addPermanentWidget(self.pwd_set_lb)
+
+        self.statusbar.addPermanentWidget(QLabel('  ')) #Spacing
+
         #---Encoding
         self.encod_box = QComboBox()
         self.encod_box.addItems(lst_encod)
@@ -353,11 +369,8 @@ class TyptGui(QMainWindow):
         except IndexError as err:
             print('Typt: TyptGui._chk_tab: line approx 365: {}'.format(err))
 
-        if self.passwords[tab] == None:
-            self.ch_pwd_ac.setEnabled(False)
-
-        else:
-            self.ch_pwd_ac.setEnabled(True)
+        self.set_pwd_ac.setEnabled(self.passwords[tab] == None)
+        self.ch_pwd_ac.setEnabled(self.passwords[tab] != None)
 
 
     def _set_style(self, a=False):
@@ -415,6 +428,14 @@ class TyptGui(QMainWindow):
             self.saved_lb.setStyleSheet('color: #f00')
 
             self.setWindowTitle('{} * — Typt v{}'.format(self.tab_names[self.current_tab], Typt_version))
+
+        if self.passwords[self.current_tab] == None:
+            self.pwd_set_lb.setText(tr('No password'))
+            self.pwd_set_lb.setStyleSheet('color: #f00')
+
+        else:
+            self.pwd_set_lb.setText(tr('Password set'))
+            self.pwd_set_lb.setStyleSheet('color: #0f0')
 
 
     def _txt_changed(self):
@@ -541,10 +562,13 @@ class TyptGui(QMainWindow):
         '''
 
         if filename == False:
-            fn = QFileDialog.getOpenFileName(self, tr('Open file') + ' — Typt')[0]#, getcwd())[0]
+            fn = QFileDialog.getOpenFileName(self, tr('Open file') + ' — Typt', self.open_path, tr('Typt files(*.typt);;Text files(*.txt);;All files(*)'))[0]
 
             if fn in ((), ''):
                 return -3 #Canceled
+
+            else:
+                self.open_path = '/'.join(fn.split('/')[:-1])
 
         else:
             fn = filename
@@ -557,20 +581,15 @@ class TyptGui(QMainWindow):
 
 
         try:
-            with open(fn, mode='r', encoding=str(self.encod_box.currentText())) as f:
+            with open(fn, mode='rb') as f:
                 file_content = f.read()
 
         except FileNotFoundError:
             QMessageBox.critical(None, '!!! ' + tr('Error') + ' !!!', '<h2>' + tr('The file was NOT found') + ' !!!</h2>')
             return -1 #stop
 
-        except UnicodeDecodeError:
-            QMessageBox.critical(None, '!!! ' + tr('Encoding error') + ' !!!', \
-                '<h2>' + tr('The file can\'t be decoded with this encoding') + '.</h2>')
 
-            return -2 #stop
-
-        if fn[-4:] != '.txt':
+        if fn[-5:] == '.typt':
             while True:
                 #---Ask password
                 pwd = AskPwd.use(parent=self)
@@ -580,7 +599,7 @@ class TyptGui(QMainWindow):
 
                 #---Decryption
                 try:
-                    f_dec = AES.AES(256, pwd, hexa=True).decryptText(file_content, mode_c='str')
+                    f_dec = AES.AES(256, pwd, hexa=True).decryptText(file_content, mode_c='b', encoding=str(self.encod_box.currentText()))
 
                 except UnicodeDecodeError:
                     QMessageBox.critical(None, '!!! Wrong password !!!', '<h2>{}</h2>'.format(tr('This is not the good password !')))
@@ -593,7 +612,16 @@ class TyptGui(QMainWindow):
                     break
 
         else:
-            f_dec = file_content
+            try:
+                f_dec = file_content.decode(encoding=str(self.encod_box.currentText()))
+
+            except UnicodeDecodeError:
+                QMessageBox.critical(None, '!!! ' + tr('Encoding error') + ' !!!', \
+                    '<h2>' + tr('The file can\'t be decoded with this encoding') + '.</h2>')
+
+                return -2 #stop
+
+            pwd = None
 
         #---Remove 'Untitled' tab
         if len(self.tabs) == 1 and self.saved[0] == None:
@@ -609,7 +637,7 @@ class TyptGui(QMainWindow):
         self.saved[-1] = True
         self.passwords[-1] = pwd
 
-        self.ch_pwd_ac.setEnabled(True)
+        self.ch_pwd_ac.setEnabled(pwd != None)
 
         self._set_save_lb_txt()
         self.statusbar.showMessage('File opened !', 3000)
@@ -635,28 +663,49 @@ class TyptGui(QMainWindow):
 
         txt = self.tabs[tab_ind].toPlainText()
 
+        enc = True
+
         if 'Untitled' in self.filenames[tab_ind] or as_:
-            fn = QFileDialog.getSaveFileName(self, tr('Save file') + ' — Typt', getcwd(), tr('Typt files(*.typt);;All files(*)'))[0]
+            fn = QFileDialog.getSaveFileName(self, tr('Save file') + ' — Typt', self.save_path, tr('Typt files(*.typt);;Text files(*.txt);;All files(*)'))[0]
+
+            if fn[-5:] != '.typt' and self.passwords[tab_ind] == None:
+                if QMessageBox.warning(self, '!!! Not Encrypted !!!', '<h2>' + tr('If you continue, the file will NOT be encrypted !') + '</h2>', QMessageBox.Cancel | QMessageBox.Ignore, QMessageBox.Cancel) == QMessageBox.Cancel:
+                    return -3 #Aborted.
+
+                else:
+                    enc = False
+
             self.filenames[tab_ind] = fn
 
         else:
             fn = self.filenames[tab_ind]
 
+            if fn[-5:] != '.typt' and self.passwords[tab_ind] == None:
+                enc = False
+                self.statusbar.showMessage(tr('Not encrypted !'), 3000)
+
         if fn in ((), ''):
             return -3 # Canceled
 
+        else:
+            self.save_path = '/'.join(fn.split('/')[:-1])
+
         #------Encrypt
-        if self.passwords[tab_ind] == None:
+        if self.passwords[tab_ind] == None and enc:
             self.passwords[tab_ind] = SetPwd.use(parent=self)
 
             if self.passwords[tab_ind] == None:
                 return -3 #Abort
 
-        txt_enc = AES.AES(256, self.passwords[tab_ind], hexa=True).encryptText(txt, mode_c='str')
-
         #------Write
         try:
-            with open(fn, 'w', encoding=str(self.encod_box.currentText())) as f:
+            if enc:
+                txt_enc = AES.AES(256, self.passwords[tab_ind], hexa=True).encryptText(txt, mode_c='b', encoding=str(self.encod_box.currentText()))
+
+            else:
+                txt_enc = txt.encode(encoding=str(self.encod_box.currentText()))
+
+            with open(fn, 'wb') as f:
                 f.write(txt_enc)
 
         except UnicodeEncodeError:
@@ -702,9 +751,26 @@ class TyptGui(QMainWindow):
 
         self.passwords[tab_ind] = new_pwd
 
-        self.save(tab_ind)
+        #self.save(tab_ind)
 
+        self._chk_tab(tab_ind)
         self.statusbar.showMessage(tr('Password changed !'), 3000)
+
+
+    def set_pwd(self):
+        '''Set the file's password'''
+
+        tab_ind = self.current_tab
+
+        new_pwd = SetPwd.use(tr('Password') + '— Typt', parent=self)
+
+        if new_pwd == None:
+            return -3 #Aborted
+
+        self.passwords[tab_ind] = new_pwd
+
+        self._chk_tab(tab_ind)
+        self.statusbar.showMessage(tr('Password set !'), 3000)
 
 
 

@@ -559,6 +559,7 @@ Les documents
 a été modifié.
 ont étés modifiés.
 Fichers Typt(*.typt);;Tous les fichiers(*)
+Fichers Typt(*.typt);;Fichiers texte(*.txt);;Tous les fichiers(*)
 Le mot de passe a été changé !
 Mot de passe du fichier
 Choisir un mot de passe
@@ -568,3 +569,10 @@ Typt est un éditeur de texte sécurisé qui enregistre le texte chiffré avec l
 Fermer
 &Chiffrement
 &Changer le mot de passe
+&Mettre un mot de passe
+Mot de passe
+Mot de passe activé !
+Si vous continuez, le fichier ne sera PAS chiffré !
+Pas de mot de passe
+Mot de passe mis
+Non chiffré !

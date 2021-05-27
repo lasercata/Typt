@@ -13,6 +13,7 @@ Else you should be able to run the software by downloading the build version for
 
 
 ## Installing
+You can download directly the source code, or the last release, as you prefer. If you don't want to download Python3 and PyQt5, you can download the last release zip file that contain a build version for your OS (Windows or Linux).
 
 ### Source code
 Download or clone the repository :
@@ -35,7 +36,7 @@ Go to [releases](https://github.com/lasercata/Typt/releases), and download the z
 ## Running
 In the main directory, run `./Typt_gui.py` to run the python script. Else you can run `./Typt_gui` for Linux build, or `Typt_gui.exe` for Windows build.
 
-To open file, run `./Typt_gui.py [files...]`. For command line help, type `./Typt_gui.py -h`. Show version : `./Typt_gui.py -v`.
+To open file from command line, run `./Typt_gui.py [files...]`. For command line help, type `./Typt_gui.py -h`. Show version : `./Typt_gui.py -v`.
 
 
 ## Authors

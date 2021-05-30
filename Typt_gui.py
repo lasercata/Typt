@@ -4,8 +4,8 @@
 '''Launch Typt with PyQt5 graphical interface.'''
 
 Typt_gui__auth = 'Lasercata'
-Typt_gui__last_update = '25.05.2021'
-Typt_gui__version = '1.1'
+Typt_gui__last_update = '30.05.2021'
+Typt_gui__version = '1.2'
 
 
 ##-import
@@ -13,7 +13,7 @@ Typt_gui__version = '1.1'
 #---------packages
 #------gui
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon, QPixmap, QCloseEvent, QPalette, QColor, QFont
+from PyQt5.QtGui import QIcon, QPixmap, QCloseEvent, QPalette, QColor, QFont, QKeySequence
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QComboBox, QStyleFactory,
     QLabel, QGridLayout, QLineEdit, QMessageBox, QWidget, QPushButton, QCheckBox,
     QHBoxLayout, QVBoxLayout, QGroupBox, QTabWidget, QTableWidget, QFileDialog,
@@ -240,7 +240,38 @@ class TyptGui(QMainWindow):
         self.redo_ac.triggered.connect(lambda: self.tabs[self.current_tab].redo())
         self.edit_m.addAction(self.redo_ac)
 
-        #Todo: copy, paste, ...
+        self.edit_m.addSeparator()
+
+        #-Cut
+        self.cut_ac = QAction(tr('&Cut'), self)
+        self.cut_ac.setShortcut('Ctrl+X')
+        self.cut_ac.triggered.connect(lambda: self.tabs[self.current_tab].cut())
+        self.edit_m.addAction(self.cut_ac)
+
+        #-Copy
+        self.copy_ac = QAction(tr('&Copy'), self)
+        self.copy_ac.setShortcut('Ctrl+C')
+        self.copy_ac.triggered.connect(lambda: self.tabs[self.current_tab].copy())
+        self.edit_m.addAction(self.copy_ac)
+
+        #-Paste
+        self.paste_ac = QAction(tr('&Paste'), self)
+        self.paste_ac.setShortcut('Ctrl+V')
+        self.paste_ac.triggered.connect(lambda: self.tabs[self.current_tab].paste())
+        self.edit_m.addAction(self.paste_ac)
+
+        #-Delete
+        #self.del_ac = QAction(tr('De&lete'), self)
+        #self.del_ac.setShortcut(QKeySequence.Delete)
+        #self.del_ac.triggered.connect(lambda: self.tabs[self.current_tab].del_())
+        #Todo : correct this line : del_ method is not defined for QPlainTextEdit widget whereas it is defined for QTextEdit widget
+        #self.edit_m.addAction(self.del_ac)
+
+        #-Select all
+        self.sa_ac = QAction(tr('Sele&ct all'), self)
+        self.sa_ac.setShortcut(QKeySequence.SelectAll)
+        self.sa_ac.triggered.connect(lambda: self.tabs[self.current_tab].selectAll())
+        self.edit_m.addAction(self.sa_ac)
 
 
         #---View
@@ -354,6 +385,8 @@ class TyptGui(QMainWindow):
         if len(self.tabs) == 0 and new:
             self.new()
 
+        self._chk_tab(len(self.tabs)-1)
+
 
     def _chk_tab(self, tab):
         '''Set `self.current_tab` to `tab`, change window title, word count, and the saved label.'''
@@ -383,14 +416,16 @@ class TyptGui(QMainWindow):
         '''Return the number of characters and the number of words which are `txt`.'''
 
         if txt == '':
-            return 0, 0
+            return 0, 0, 0
 
-        txt_l = txt.split(' ')
+        cc = len(txt) # Characters count
+        gcc = 0 # Graphic characters count
+        for k in txt:
+            if ord(k) >= 32 and ord(k) != 127:
+                gcc += 1
+        wc = len(txt.replace('\n', ' ').split()) # Words count (may not be accurate, ';' will be counted as a word for example).
 
-        cc = len(txt.replace('\n', '')) # Char count
-        wc = len(txt_l) - txt_l.count('') # Word count (may not be accurate, ';' will be counted as a word for example).
-
-        return cc, wc
+        return cc, gcc, wc
 
     def _show_wc(self, tab_ind=None):
         '''
@@ -405,8 +440,8 @@ class TyptGui(QMainWindow):
         else:
             txt = self.tabs[tab_ind].toPlainText()
 
-        cc, wc = self._get_word_count(txt)
-        self.wc_lb.setText(tr('{} words, {} chars.').format(format(wc, '_').replace('_', ' '), format(cc, '_').replace('_', ' ')))
+        cc, gcc, wc = self._get_word_count(txt)
+        self.wc_lb.setText(tr('{} words, {} chars, {} gchars').format(format(wc, '_').replace('_', ' '), format(cc, '_').replace('_', ' '), format(gcc, '_').replace('_', ' ')))
 
 
     def _set_save_lb_txt(self):

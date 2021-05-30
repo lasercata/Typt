@@ -566,7 +566,6 @@ Set password
 Password :
 Confirm :
 Typt is a secure raw text editor that save text encrypted with the symetrical algorithm cipher AES-256-CBC. It manages multiples tabs.
-Close
 E&ncryption
 &Change Password
 &Set Password
@@ -576,3 +575,8 @@ If you continue, the file will NOT be encrypted !
 No password
 Password set
 Not encrypted !
+{} words, {} chars, {} gchars
+&Cut
+&Copy
+&Paste
+Sele&ct all

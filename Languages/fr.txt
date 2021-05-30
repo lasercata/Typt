@@ -566,7 +566,6 @@ Choisir un mot de passe
 Mot de passe :
 Confirmation :
 Typt est un éditeur de texte sécurisé qui enregistre le texte chiffré avec l'algorithme symétrique AES-256-CBC. Il gère plusieurs onglets.
-Fermer
 &Chiffrement
 &Changer le mot de passe
 &Mettre un mot de passe
@@ -576,3 +575,8 @@ Si vous continuez, le fichier ne sera PAS chiffré !
 Pas de mot de passe
 Mot de passe mis
 Non chiffré !
+{} mots, {} cars, {} carsimp
+&Couper
+&Copier
+&Coller
+Séle&ctionner tout

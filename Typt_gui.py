@@ -4,8 +4,8 @@
 '''Launch Typt with PyQt5 graphical interface.'''
 
 Typt_gui__auth = 'Lasercata'
-Typt_gui__last_update = '30.05.2021'
-Typt_gui__version = '1.2'
+Typt_gui__last_update = '31.05.2021'
+Typt_gui__version = '1.2.1'
 
 
 ##-import
@@ -385,7 +385,8 @@ class TyptGui(QMainWindow):
         if len(self.tabs) == 0 and new:
             self.new()
 
-        self._chk_tab(len(self.tabs)-1)
+        if len(self.tabs) != 0:
+            self._chk_tab(len(self.tabs)-1)
 
 
     def _chk_tab(self, tab):

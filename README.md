@@ -42,7 +42,7 @@ To open file from command line, run `./Typt_gui.py [files...]`. For command line
 ## Authors
 
 * **Lasercata** - [Lasercata](https://github.com/lasercata)
-* **Elerias** - [Elerias](https://github.com/EleriasQueflunn) for the implementation of AES
+* **Elerias** - [Elerias](https://github.com/EleriasQueflunn)
 
 
 ## License

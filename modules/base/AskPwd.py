@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 AskPwd__auth = 'Lasercata'
-AskPwd__ver = '1.1'
-AskPwd__last_update = '23.05.2021'
+AskPwd__ver = '1.2'
+AskPwd__last_update = '01.06.2021'
 
 ##-import
 import sys
@@ -15,7 +15,7 @@ try:
 except ModuleNotFoundError as ept:
     print('\nPut the module' + ' ' + str(ept).strip('No module named') + ' back !!!')
     sys.exit()
-    # tr = lambda t: t #TODO: this is just to test.
+    # tr = lambda t: t #This is just to test.
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
@@ -82,7 +82,7 @@ class AskPwd(QDialog):
         '''Activated when <enter> pressed or when the button is clicked.'''
 
         text = self.pwd.text()
-        self.pwd_hashed = Hasher('sha256').hash(text)
+        self.pwd_hashed = Hasher('sha256').hash(Hasher('SecHash').hash(text))
 
         self.clear_pwd = text
 
@@ -197,7 +197,7 @@ class SetPwd(QDialog):
             QMessageBox.critical(self, '!!! Empty passwords !!!', '<h2>{}</h2>'.format(tr('Please fill the two passwords fields.')))
             return -3
 
-        self.pwd_hashed = Hasher('sha256').hash(text)
+        self.pwd_hashed = Hasher('sha256').hash(Hasher('SecHash').hash(text))
         self.clear_pwd = text
 
         try:
